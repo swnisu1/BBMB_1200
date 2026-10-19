@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>BrewMUD Instructor Progress</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/instructor.css">
+</head>
+<body>
+  <main class="shell instructor-shell">
+    <header>
+      <div>
+        <p class="eyebrow">Read-only course tracking</p>
+        <h1>Brew<span>MUD</span></h1>
+      </div>
+      <a href="/" class="game-link">Return to game</a>
+    </header>
+
+    <section id="instructor-login" class="instructor-panel">
+      <h2>Instructor progress</h2>
+      <p>Enter the instructor password configured in Render. This page shows the same progression students see with <code>LEVEL</code>.</p>
+      <form id="instructor-login-form" class="instructor-login-form">
+        <label for="instructor-password">Instructor password</label>
+        <input id="instructor-password" type="password" autocomplete="current-password" required autofocus>
+        <button type="submit">View progress</button>
+      </form>
+      <p id="instructor-error" class="error" role="alert"></p>
+    </section>
+
+    <section id="progress-panel" class="instructor-panel" hidden>
+      <div class="progress-heading">
+        <div>
+          <h2>Student progress</h2>
+          <p id="progress-summary" class="progress-summary"></p>
+        </div>
+        <button id="refresh-progress" type="button">Refresh</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>Rank</th>
+              <th>Insight</th>
+              <th>Locations</th>
+              <th>Quests</th>
+              <th>Knowledge checks</th>
+              <th>Next rank</th>
+              <th>Survey</th>
+              <th>Last active</th>
+            </tr>
+          </thead>
+          <tbody id="progress-rows"></tbody>
+        </table>
+      </div>
+      <p class="privacy-note">Account names are player-chosen. Ask students to tell you which account belongs to them.</p>
+
+      <section class="survey-results" aria-labelledby="survey-results-title">
+        <h2 id="survey-results-title">Anonymous survey results</h2>
+        <p id="survey-summary" class="progress-summary"></p>
+        <p id="survey-withheld" class="survey-withheld" hidden></p>
+        <div id="survey-results-content" hidden>
+          <div class="table-wrap">
+            <table class="survey-table">
+              <thead>
+                <tr>
+                  <th>Question (1 = strongly disagree; 10 = strongly agree)</th>
+                  <th>Responses</th>
+                  <th>Average</th>
+                </tr>
+              </thead>
+              <tbody id="survey-result-rows"></tbody>
+            </table>
+          </div>
+          <h3>Optional comments</h3>
+          <div id="survey-comments" class="survey-comments"></div>
+        </div>
+        <p class="privacy-note">Responses are not linked to account names, ranks, activity, or submission times. Results remain hidden until at least five students respond.</p>
+      </section>
+    </section>
+  </main>
+  <script src="/instructor.js"></script>
+</body>
+</html>

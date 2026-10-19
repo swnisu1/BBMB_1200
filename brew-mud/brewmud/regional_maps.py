@@ -1,0 +1,144 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from collections import deque
+
+from .world import ROOMS
+
+
+@dataclass(frozen=True)
+class RegionalMap:
+    title: str
+    rows: tuple[tuple[tuple[str, str], ...], ...]
+    transitions: str
+
+    @property
+    def nodes(self) -> dict[str, str]:
+        return {code: room for row in self.rows for code, room in row}
+
+    def render(self, current: str) -> str:
+        diagrams = []
+        for index, row in enumerate(self.rows):
+            diagrams.append("---".join(f"<{code}>" if room == current else f"[{code}]" for code,room in row))
+            if index < len(self.rows) - 1:
+                columns = min(len(row), len(self.rows[index + 1]))
+                diagrams.append("  |     " * (columns - 1) + "  |")
+        legend = "\n".join(f"  {code}  {ROOMS[room].name}" for row in self.rows for code,room in row)
+        return (f"REGIONAL MAP — {self.title}    <CODE> = YOU ARE HERE\n"
+                + "\n".join(diagrams)
+                + f"\n\nLocations:\n{legend}\n\nRegional Transitions: {self.transitions}")
+
+
+REGIONAL_MAPS = {
+ "malt": RegionalMap("MALTINGS", ((('GRN','grain_receiving'),('BAR','barley_lab'),('STP','steep_house'),('AIR','air_rest'),('GER','germination_floor')),
+                                      (('GAT','brewery_gate'),('CUR','cure_floor'),('KLN','kiln'),('END','endosperm'),('ALE','aleurone'))),
+                     "GER leads DOWN to the Water Laboratory; GAT leads IN to the Shipping Dock."),
+ "mash": RegionalMap("WATER AND MASH", ((('WAT','water_lab'),('PHB','ph_bench'),('ION','ion_gallery'),('CTY','city_profiles')),
+                                            (('TRT','treatment_bay'),('MIL','mill_room'),('MSH','mash_tun'),('PRO','protein_rest')),
+                                            (('BET','beta_rest'),('ALP','alpha_rest'),('CNV','conversion_bench'),('OUT','mash_out'))),
+                     "WAT leads UP to Germination; MSH leads IN to the Carbohydrate Lab; PRO, BET, and ALP lead IN to the Protein and Enzyme Lab; CNV leads IN to the Gelatinization Chamber; OUT leads DOWN to the Lauter Tun."),
+ "starch": RegionalMap("CARBOHYDRATE AND STARCH LAB",
+                       ((('CAR','carbohydrate_lab'),('GLU','glucose_bench'),('DIS','disaccharide_gallery'),('POL','polymer_comparison')),
+                       (('GEL','gelatinization_chamber'),('CRY','crystallinity_lab'),('AMY','amylose_helix'),('AMP','amylopectin_arbor'))),
+                       "CAR leads OUT to the Mash Tun; GEL leads OUT to the Starch Conversion Bench."),
+ "enzyme": RegionalMap("PROTEIN AND ENZYME LAB",
+                        ((('AAG','amino_acid_gallery'),('PEP','peptide_bond_bench'),('STR','protein_structure_gallery'),('FOL','folding_chamber'),('DEN','denaturation_bay'),('CAT','enzyme_catalysis_lab')),
+                         (('ACT','active_site_workshop'),('OPT','enzyme_conditions_lab'),('AMZ','amylase_mechanism_lab'),('THK','mash_thickness_station'),('AUX','accessory_enzyme_lab'),('IOD','iodine_test_alcove'))),
+                        "AAG leads OUT to the Protein Rest; AMZ leads OUT to the Beta-Amylase Rest; IOD leads OUT to the Alpha-Amylase Rest."),
+ "brew": RegionalMap("BREWHOUSE", ((('LAU','lauter_tun'),('BED','grain_bed'),('SPA','sparge_arm'),('GRA','wort_grant'),('KET','kettle')),
+                                          (('BRK','hot_break'),('HOP','hop_dosing'),('WHL','whirlpool'),('HEX','heat_exchanger'),('OXY','oxygenation_station'))),
+                     "LAU leads UP to Mash-Out; HOP leads IN to the Hop Lab; OXY leads DOWN to Fermentation."),
+ "ferment": RegionalMap("FERMENTATION CELLAR", ((('PIT','pitching_deck'),('ALE','ale_fermenter'),('LAG','lager_fermenter'),('YLB','yeast_lab'),('MEM','yeast_membrane'),('MGP','maltose_gate'),('MLT','maltase_bench')),
+                                                    (('GLY','glycolysis_lane'),('NAD','nad_recycling'),('LIP','lipid_workshop'),('EST','ester_lab'),('DIA','diacetyl_rest'),('SUL','sulfur_vent'),('MAT','maturation_cellar'))),
+                     "PIT leads UP to wort oxygenation; YLB leads IN to Microbiology; MAT leads DOWN to Packaging."),
+ "hops": RegionalMap("HOP YARD AND FLAVOR LAB", ((('YRD','hop_yard'),('CON','female_cone'),('LUP','lupulin_gland'),('AAC','alpha_acid_bench')),
+                                                   (('OIL','oil_lab'),('IBU','ibu_station'),('DRY','dry_hop_gallery'),('LGT','lightstrike_booth'))),
+                     "AAC leads OUT to the Brewhouse Hop-Dosing Balcony."),
+ "pack": RegionalMap("PACKAGING AND SENSORY", ((('BRT','brite_tank'),('CO2','carbonation_station'),('BOT','bottle_line'),('CAN','canning_line'),('NIT','nitrogen_tap')),
+                                                   (('FOM','foam_lab'),('SNS','sensory_room'),('STY','style_taproom'),('CLD','cold_storage'),('SHP','shipping_dock'))),
+                     "BRT leads UP to Maturation; STY leads DOWN to QA; SHP leads OUT to the Brewery Gate."),
+ "quality": RegionalMap("QUALITY AND TRAINING", ((('MIC','microbiology_lab'),('SAN','sanitation_bay'),('QAC','qa_chemistry')),
+                                                    (('BNK','yeast_bank'),('PIL','pilot_brewery'),('CLS','training_classroom'))),
+                     "MIC leads OUT to the Yeast Lab; QAC leads UP to the Style Taproom."),
+}
+
+ALIASES = {"malting":"malt","maltings":"malt","malt":"malt", "water":"mash","mash":"mash",
+           "starch":"starch","carbohydrate":"starch","carbohydrates":"starch","sugar":"starch",
+           "enzyme":"enzyme","enzymes":"enzyme","protein":"enzyme","proteins":"enzyme","amylase":"enzyme",
+           "brewhouse":"brew","brew":"brew", "fermentation":"ferment","cellar":"ferment","ferment":"ferment",
+           "hop":"hops","hops":"hops", "packaging":"pack","sensory":"pack","pack":"pack",
+           "quality":"quality","qa":"quality","training":"quality"}
+ROOM_REGION = {room: region for region,m in REGIONAL_MAPS.items() for room in m.nodes.values()}
+
+
+def map_index() -> str:
+    return ("BREWMUD REGIONAL MAPS\n  MAP MALT       Maltings\n  MAP MASH       Water and mash chemistry\n"
+            "  MAP STARCH     Carbohydrate and starch lab\n  MAP ENZYME     Protein and enzyme lab\n"
+            "  MAP BREW       Brewhouse\n"
+            "  MAP FERMENT    Fermentation cellar\n  MAP HOPS       Hop yard and flavor lab\n"
+            "  MAP PACK       Packaging and sensory\n  MAP QUALITY    Quality and training")
+
+
+def render_map(current: str, requested: str = "") -> str:
+    query = " ".join(requested.casefold().split())
+    if query in {"all","regions","list","help"}: return map_index()
+    region = ALIASES.get(query) if query else ROOM_REGION[current]
+    return REGIONAL_MAPS[region].render(current) if region else f"Unknown map region: {requested}.\n\n{map_index()}"
+
+
+def _route_to_room(start: str, destination: str) -> list[tuple[str, str]]:
+    """Shortest route as (direction, next room) steps."""
+    queue = deque([(start, [])])
+    seen = {start}
+    while queue:
+        room, route = queue.popleft()
+        for direction, neighbor in ROOMS[room].exits.items():
+            if neighbor in seen:
+                continue
+            next_route = [*route, (direction, neighbor)]
+            if neighbor == destination:
+                return next_route
+            seen.add(neighbor)
+            queue.append((neighbor, next_route))
+    return []
+
+
+def compact_map_data(current: str, quest_room: str | None = None,
+                     quest_npc: str | None = None) -> dict[str, object]:
+    """Return a structured regional map suitable for the browser side panel."""
+    region_key = ROOM_REGION[current]
+    region = REGIONAL_MAPS[region_key]
+    marker_room = None
+    marker_text = None
+    if quest_room and quest_npc:
+        if ROOM_REGION[quest_room] == region_key:
+            marker_room = quest_room
+            marker_text = f"Quest: {quest_npc} at {ROOMS[quest_room].name}."
+        else:
+            marker_room = current
+            transition = None
+            for direction, next_room in _route_to_room(current, quest_room):
+                if ROOM_REGION[next_room] != region_key:
+                    transition = (direction, next_room)
+                    break
+                marker_room = next_room
+            if transition:
+                direction, next_room = transition
+                next_move = (f"go {direction} to {ROOMS[next_room].name}"
+                             if marker_room == current else
+                             f"go to {ROOMS[marker_room].name}, then {direction} to {ROOMS[next_room].name}")
+                marker_text = (f"Toward {quest_npc} in {REGIONAL_MAPS[ROOM_REGION[quest_room]].title}: "
+                               f"{next_move}.")
+    return {
+        "title": region.title,
+        "current_name": ROOMS[current].name,
+        "quest_marker": marker_text,
+        "rows": [
+            [
+                {"code": code, "name": ROOMS[room].name, "current": room == current,
+                 "quest": room == marker_room}
+                for code, room in row
+            ]
+            for row in region.rows
+        ],
+    }

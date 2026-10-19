@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BrewMUD</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">A biochemical multiplayer brewery</p>
+        <h1>Brew<span>MUD</span></h1>
+      </div>
+      <div class="connection-controls">
+        <button id="sound-toggle" class="sound-toggle" type="button" aria-pressed="true">Sound: on</button>
+        <div id="status" class="status">offline</div>
+      </div>
+    </header>
+
+    <section id="login" class="login" aria-labelledby="login-title">
+      <div>
+        <h2 id="login-title">Enter the brewery</h2>
+        <p>Log in to continue, or create an account to save your progress automatically.</p>
+      </div>
+      <form id="login-form">
+        <div class="account-fields">
+          <label for="name">Account name</label>
+          <input id="name" name="name" minlength="2" maxlength="24" autocomplete="username" required autofocus>
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" minlength="8" maxlength="128" autocomplete="current-password" required>
+        </div>
+        <div class="account-actions">
+          <button type="submit" data-action="register">Create new account</button>
+          <button type="submit" data-action="login">Log in</button>
+        </div>
+        <p class="account-note">Use at least 8 characters. Password reset is not available in this first version. Sessions log out after 30 minutes without a game command; progress remains saved.</p>
+        <p id="login-error" class="error" role="alert"></p>
+      </form>
+    </section>
+
+    <section id="instructions" class="instructions" aria-labelledby="instructions-title" hidden>
+      <p class="eyebrow">Your first brewery shift</p>
+      <h2 id="instructions-title">How to play BrewMUD</h2>
+      <div class="instruction-grid">
+        <div>
+          <h3>Explore</h3>
+          <p>Click an exit on the picture to move, an object to examine it, or a Talk button to meet a resident. The story appears below the picture; conversations and object details also appear on it. Click an information button again, the caption, or × to close it. You can always switch to Classic text if you prefer typing commands.</p>
+        </div>
+        <div>
+          <h3>Check your knowledge</h3>
+          <p>Pop quizzes have clickable answers. If you need to review, click Pause, then Notes or explore the area. Click Resume quiz when ready. After a correct answer, click Continue to reveal the room.</p>
+        </div>
+        <div>
+          <h3>Take assignments</h3>
+          <p>Talk to brewery residents; many will ask for help. Your current objective appears in the side panel. Click Journal for details or Hint for directions.</p>
+        </div>
+        <div>
+          <h3>Work together</h3>
+          <p>Click Who to see other players. Players explore independently, and pop quizzes remain individual. If you want to chat, switch to Classic text and use <code>SAY</code>.</p>
+        </div>
+      </div>
+      <p class="first-step">At the brewery gate, click Talk to Training Coordinator to begin.</p>
+      <p class="continue-prompt">Click Continue to begin</p>
+      <button id="instructions-continue" type="button">Continue</button>
+    </section>
+
+    <section id="game" class="game" hidden>
+      <div class="view-switch" aria-label="Game view">
+        <span>View</span>
+        <button id="adventure-view-button" type="button" aria-pressed="true">Illustrated rooms</button>
+        <button id="text-view-button" type="button" aria-pressed="false">Classic text</button>
+        <span id="adventure-availability" class="view-note"></span>
+      </div>
+      <div class="play-area">
+        <div class="game-main">
+          <section id="adventure" class="adventure" aria-label="Illustrated room view" hidden>
+            <div class="scene-header"><span id="scene-title">Brewery Gate</span><span>Talk below · click objects and exits</span></div>
+            <div class="scene-stage">
+              <img id="scene-picture" alt="" draggable="false">
+              <div id="scene-hotspots" class="scene-hotspots" aria-label="Interactive objects and exits"></div>
+              <div id="scene-caption" class="scene-caption" role="region" aria-label="Scene information" hidden>
+                <div class="scene-caption-heading">
+                  <span id="scene-caption-title"></span>
+                  <button id="scene-caption-close" type="button" aria-label="Close scene information">×</button>
+                </div>
+                <div id="scene-caption-text" class="scene-caption-text"></div>
+              </div>
+            </div>
+            <div id="scene-talk-actions" class="scene-talk-actions" aria-label="People and characters to talk to"></div>
+            <p id="scene-players" class="scene-players"></p>
+          </section>
+          <section id="quiz-controls" class="quiz-controls" aria-label="Knowledge check" hidden>
+            <p id="quiz-topic" class="quiz-topic"></p>
+            <h2 id="quiz-prompt"></h2>
+            <p id="quiz-feedback" class="quiz-feedback" hidden></p>
+            <div id="quiz-options" class="quiz-options"></div>
+            <div id="quiz-actions" class="quiz-actions"></div>
+          </section>
+          <nav id="click-actions" class="click-actions" aria-label="Game actions">
+            <button type="button" data-command="journal">Journal</button>
+            <button type="button" data-command="hint">Hint</button>
+            <button type="button" data-command="notes">Notes</button>
+            <button type="button" data-command="map">Full map</button>
+            <button type="button" data-command="level">Level</button>
+            <button type="button" data-command="who">Who</button>
+            <button type="button" data-command="survey">Survey</button>
+            <button type="button" data-command="help">Help</button>
+            <button id="leave-game" class="leave-game" type="button">Leave game</button>
+          </nav>
+          <div id="terminal" class="terminal" role="log" aria-live="polite" aria-label="Game output"></div>
+        </div>
+        <aside id="progress-panel" class="progress-panel" aria-label="Player information">
+          <section class="side-section quest-panel" aria-labelledby="quest-panel-title">
+            <p id="quest-panel-title" class="side-title">Active quest</p>
+            <p id="quest-title" class="quest-title">First Day in the Brewery</p>
+            <p id="quest-description" class="quest-description">The Training Coordinator has a first assignment.</p>
+            <p class="objective-label">Objective</p>
+            <p id="quest-objective" class="quest-objective">Find the Training Coordinator.</p>
+          </section>
+          <section class="side-section map-panel" aria-labelledby="map-panel-title">
+            <p id="map-panel-title" class="side-title">Regional map</p>
+            <p id="mini-map-title" class="mini-map-title">Maltings</p>
+            <div id="mini-map" class="mini-map" role="img" aria-label="Current regional map"></div>
+            <p id="mini-map-current" class="mini-map-current">Here: Brewery Gate</p>
+            <p id="mini-map-quest" class="mini-map-quest" hidden></p>
+            <p class="map-help">★ shows the quest route. Click Hint for exact turns; Full map shows regional transitions.</p>
+          </section>
+          <section class="side-section progress-section" aria-labelledby="progress-title">
+            <p id="progress-title" class="side-title">Your progress</p>
+            <p id="progress-rank" class="progress-rank">Brewery Visitor</p>
+            <dl>
+              <div><dt>Insight</dt><dd id="progress-insight">0</dd></div>
+              <div><dt>Locations</dt><dd id="progress-locations">0/90</dd></div>
+              <div><dt>Quests</dt><dd id="progress-quests">0/16</dd></div>
+              <div><dt>Checks</dt><dd id="progress-checks">0/39</dd></div>
+            </dl>
+            <p id="progress-next" class="progress-next">Next rank: Brewery Trainee at 25 Insight.</p>
+          </section>
+        </aside>
+      </div>
+      <form id="command-form" class="command-row">
+        <label for="command">command&gt;</label>
+        <input id="command" autocomplete="off" spellcheck="false" aria-label="Command">
+        <button type="submit">Send</button>
+      </form>
+      <p class="shortcut">Try <code>look</code>, <code>map</code>, <code>who</code>, <code>say hello</code>, <code>survey</code>, or <code>help</code>.</p>
+    </section>
+  </main>
+  <dialog id="survey-dialog" class="survey-dialog" aria-labelledby="survey-title">
+    <form id="survey-form">
+      <div class="survey-heading">
+        <div>
+          <p class="eyebrow">Anonymous course evaluation</p>
+          <h2 id="survey-title">How did BrewMUD work as a study guide?</h2>
+        </div>
+        <button id="survey-close" class="survey-close" type="button" aria-label="Close survey">×</button>
+      </div>
+      <p class="survey-privacy">
+        Completing this form is recorded on your account, but your answers are stored separately
+        without your account name, rank, activity, or submission time. Do not include identifying
+        information in the optional comment.
+      </p>
+      <p id="survey-scale" class="survey-scale"></p>
+      <div id="survey-questions" class="survey-questions"></div>
+      <label for="survey-comment" class="survey-comment-label">Optional comment</label>
+      <p class="survey-comment-prompt">What helped most, what frustrated you, or what should change?</p>
+      <textarea id="survey-comment" rows="5"></textarea>
+      <p id="survey-error" class="error" role="alert"></p>
+      <div class="survey-actions">
+        <button id="survey-cancel" class="secondary-button" type="button">Finish later</button>
+        <button type="submit">Submit anonymous evaluation</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="/app.js"></script>
+</body>
+</html>
