@@ -1,0 +1,361 @@
+<title>Brewing Science Review</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a centered review console — subject picker → one-question flow → scored summary. Restrained, editorial. */
+:root{
+  --bg:#f4f5f2; --panel:#ffffff; --panel2:#eceee8; --ink:#1b1e19; --muted:#6a7064; --line:#dde0d8;
+  --amber:#b2760e; --amber-soft:#f1e7d2; --slate:#3a6377; --slate-soft:#e4edf1;
+  --good:#2d8a55; --good-bg:#e6f2ea; --bad:#bf4a3f; --bad-bg:#f6e6e3;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14160f; --panel:#1d2017; --panel2:#262a1f; --ink:#edefe6; --muted:#9aa08f; --line:#333829;
+  --amber:#e0a63f; --amber-soft:#39301a; --slate:#82b2c8; --slate-soft:#1f2e34;
+  --good:#58c184; --good-bg:#1b3325; --bad:#e2766b; --bad-bg:#34201d;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#14160f; --panel:#1d2017; --panel2:#262a1f; --ink:#edefe6; --muted:#9aa08f; --line:#333829;
+  --amber:#e0a63f; --amber-soft:#39301a; --slate:#82b2c8; --slate-soft:#1f2e34;
+  --good:#58c184; --good-bg:#1b3325; --bad:#e2766b; --bad-bg:#34201d;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:740px;margin:0 auto;padding-block:34px 56px;
+  padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+.screen[hidden]{display:none!important}
+.kicker{font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);font-weight:700}
+.btn{font-family:var(--body);font-weight:700;font-size:16px;border:1px solid var(--amber);border-radius:11px;cursor:pointer;
+  padding:13px 20px;background:var(--amber);color:#fff;transition:filter .15s,transform .06s}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#14160f}}
+:root[data-theme="dark"] .btn{color:#14160f}
+.btn:hover{filter:brightness(1.06)}.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn:focus-visible,.subject:focus-visible,.opt:focus-visible{outline:3px solid var(--slate);outline-offset:2px}
+
+/* start */
+#start h1{font-family:var(--display);font-weight:600;font-size:clamp(34px,7vw,52px);line-height:1.02;margin:10px 0 8px;letter-spacing:-.01em;text-wrap:balance}
+#start .lede{color:var(--muted);font-size:17px;max-width:54ch;margin:0 0 26px}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+.subject{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;cursor:pointer;
+  transition:border-color .14s,transform .08s;display:flex;flex-direction:column;gap:6px}
+.subject:hover{border-color:var(--amber);transform:translateY(-2px)}
+.subject .n{font-family:var(--display);font-weight:600;font-size:20px;line-height:1.1}
+.subject .c{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.subject .dot{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .subject .dot{color:#14160f}}
+:root[data-theme="dark"] .subject .dot{color:#14160f}
+.mixrow{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
+.mixrow .btn{flex:1;min-width:160px;text-align:center}
+.best{margin-top:18px;font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* quiz */
+.topbar{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.prog{flex:1;height:7px;background:var(--panel2);border-radius:999px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--amber);border-radius:999px;transition:width .35s ease}
+.count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600;flex:none}
+.scoreline{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px}
+.stag{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+.sc{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.q{font-weight:700;font-size:clamp(20px,3.6vw,25px);line-height:1.34;margin:0 0 20px;text-wrap:pretty}
+.opts{display:flex;flex-direction:column;gap:11px}
+.opt{display:flex;align-items:flex-start;gap:13px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:15px 16px;font-family:var(--body);font-size:16.5px;font-weight:500;line-height:1.35;color:var(--ink);cursor:pointer;
+  transition:border-color .12s,background .12s,transform .06s}
+.opt:hover:not(:disabled){border-color:var(--amber)}
+.opt:active:not(:disabled){transform:scale(.995)}
+.opt:disabled{cursor:default}
+.opt .lab{flex:none;width:26px;height:26px;border-radius:7px;background:var(--panel2);display:grid;place-items:center;
+  font-weight:700;font-size:14px;color:var(--muted)}
+.opt .mk{flex:none;margin-left:auto;font-weight:800;font-size:18px;opacity:0}
+.opt.correct{background:var(--good-bg);border-color:var(--good);color:var(--ink)}
+.opt.correct .lab{background:var(--good);color:#fff}.opt.correct .mk{opacity:1;color:var(--good)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad)}
+.opt.wrong .lab{background:var(--bad);color:#fff}.opt.wrong .mk{opacity:1;color:var(--bad)}
+.opt.faded{opacity:.55}
+.fb{margin-top:18px;border-left:3px solid var(--amber);background:var(--panel2);border-radius:0 12px 12px 0;padding:15px 18px;
+  display:flex;flex-direction:column;gap:12px}
+.fb .ex{font-size:15.5px;line-height:1.5}
+.fb .ex b{color:var(--amber)}
+.fb .nx{align-self:flex-end}
+.enter{animation:fade .28s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* results */
+#results h2{font-family:var(--display);font-weight:600;font-size:clamp(28px,6vw,42px);margin:6px 0 2px;line-height:1.05}
+.verdict{color:var(--muted);font-size:16px;margin:0 0 18px;max-width:50ch}
+.scorebig{font-family:var(--display);font-weight:600;font-size:60px;line-height:1;font-variant-numeric:tabular-nums}
+.scorebig small{font-size:26px;color:var(--muted)}
+.bars{display:flex;flex-direction:column;gap:10px;margin:22px 0}
+.bar{display:grid;grid-template-columns:150px 1fr 46px;align-items:center;gap:12px;font-size:13.5px}
+.bar .bn{color:var(--muted);font-weight:600;text-align:left}
+.bar .bt{height:9px;background:var(--panel2);border-radius:999px;overflow:hidden}
+.bar .bt i{display:block;height:100%;background:var(--slate);border-radius:999px}
+.bar .bv{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.review{margin:14px 0}
+.review summary{cursor:pointer;font-weight:700;font-size:15px;color:var(--amber)}
+.missed{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+.miss{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.miss .mq{font-weight:700;font-size:15.5px;margin-bottom:6px}
+.miss .ma{font-size:14.5px;color:var(--good);font-weight:600}
+.miss .me{font-size:14px;color:var(--muted);margin-top:4px;line-height:1.45}
+.rrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.foot{margin-top:26px;font-size:12px;color:var(--muted);text-align:center}
+</style>
+
+<div class="wrap">
+  <section class="screen" id="start">
+    <p class="kicker">Chemistry of Beer · Self-check</p>
+    <h1>Brewing Science Review</h1>
+    <p class="lede">Fifty questions across five topics from the yeast &amp; fermentation lectures. Pick an area to focus, or take a mixed set. Every answer comes with a short explanation.</p>
+    <div class="sgrid" id="sgrid"></div>
+    <div class="mixrow">
+      <button class="btn ghost" id="mixBtn">Quick mix — 15 random</button>
+      <button class="btn" id="allBtn">Full review — 50</button>
+    </div>
+    <p class="best" id="best"></p>
+  </section>
+
+  <section class="screen" id="quiz" hidden>
+    <div class="topbar">
+      <span class="count" id="count">1 / 10</span>
+      <div class="prog"><i id="prog"></i></div>
+    </div>
+    <div class="scoreline">
+      <span class="stag" id="stag"></span>
+      <span class="sc" id="sc">0 correct</span>
+    </div>
+    <h2 class="q" id="q"></h2>
+    <div class="opts" id="opts"></div>
+    <div class="fb" id="fb" hidden>
+      <span class="ex" id="ex"></span>
+      <button class="btn nx" id="nx">Next</button>
+    </div>
+  </section>
+
+  <section class="screen" id="results" hidden>
+    <p class="kicker">Results</p>
+    <h2 id="rtitle"></h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="scorebig"><span id="rscore">0</span><small id="rof"> / 0</small></div>
+    <div class="bars" id="bars"></div>
+    <details class="review" id="review">
+      <summary id="revsum">Review what you missed</summary>
+      <div class="missed" id="missed"></div>
+    </details>
+    <div class="rrow">
+      <button class="btn" id="retryMissed" hidden>Retry missed</button>
+      <button class="btn ghost" id="restart">Choose another set</button>
+    </div>
+    <p class="best" id="best2"></p>
+  </section>
+
+  <p class="foot">Built from the Chemistry of Beer lectures 7–12</p>
+</div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const SUB=["Microbes & Taxonomy","Sugars & Fermentation","Oxygen, Lipids & Esters","Sulfur & Water","GMOs & Engineering"];
+const DOT=["#b2760e","#3a6377","#6a8f3c","#9a5a8a","#2f8f8a"]; // per-subject accent
+const Q=[
+ // 0 — Microbes & Taxonomy
+ {s:0,q:"Ale yeast — the classic brewer's yeast — is which species?",a:["Saccharomyces cerevisiae","Saccharomyces pastorianus","Saccharomyces eubayanus","Schizosaccharomyces pombe"],k:0,e:"Ale yeast is S. cerevisiae: warmer, top-fermenting. Lager yeast is the cooler, bottom-fermenting S. pastorianus."},
+ {s:0,q:"Lager yeast, S. pastorianus, is a hybrid. Which wild parent was traced to Patagonia?",a:["Saccharomyces eubayanus","Saccharomyces paradoxus","Saccharomyces bayanus","Saccharomyces mikatae"],k:0,e:"S. eubayanus, a cryotolerant wild species, is the non-cerevisiae half of lager yeast — likely imported to Europe via trans-Atlantic trade."},
+ {s:0,q:"How many copies of each chromosome does lager yeast carry?",a:["Four (tetraploid)","One (haploid)","Two (diploid)","Three (triploid)"],k:0,e:"S. pastorianus is an allotetraploid hybrid: four chromosome sets from fusing an ale yeast with S. eubayanus."},
+ {s:0,q:"The 'extremophiles' — thermophiles, halophiles, acidophiles — belong to which domain?",a:["Archaea","Bacteria","Eukarya","Fungi"],k:0,e:"Archaea include the extremophiles that thrive in harsh conditions resembling the early Earth."},
+ {s:0,q:"Yeast sit in which phylum of the Kingdom Fungi?",a:["Ascomycetes","Basidiomycetes","Zygomycetes","Chytrids"],k:0,e:"Yeast are Ascomycetes. Basidiomycetes are the mushrooms; Zygomycetes include the bread molds."},
+ {s:0,q:"Gram-positive bacteria retain the purple stain because they have:",a:["A thick peptidoglycan cell wall","An outer lipid membrane","No cell wall","More flagella"],k:0,e:"The thick peptidoglycan layer traps the crystal-violet dye; Gram-negatives hold less and don't retain it."},
+ {s:0,q:"By endosymbiotic theory, mitochondria began as:",a:["Free-living aerobic prokaryotes","Infoldings of the cell membrane","Photosynthetic prokaryotes","Ancient viruses"],k:0,e:"Mitochondria descend from engulfed aerobic prokaryotes; chloroplasts from photosynthetic ones."},
+ {s:0,q:"Brettanomyces contributes aromas usually described as:",a:["Funky — barnyard, horse blanket","Banana and bubblegum","Clove and smoke","Buttery and nutty"],k:0,e:"'Brett' gives funky notes: barnyard, horse blanket, wet straw — divisive, but prized in some styles."},
+ {s:0,q:"Rod-shaped bacteria such as Lactobacillus are classified by which form name?",a:["Bacillus","Coccus","Spirillum","Vibrio"],k:0,e:"Bacillus = rod, coccus = sphere (Pediococcus), spirillum = spiral (e.g. Helicobacter)."},
+ {s:0,q:"Which lactic-acid bacterium produces only lactic acid when homofermentative, souring beer?",a:["Lactobacillus","Acetobacter","Pediococcus pentosaceus only","Saccharomyces"],k:0,e:"Homofermentative Lactobacilli make mainly lactic acid; heterofermentative ones also make acetic acid, ethanol and CO2."},
+ // 1 — Sugars & Fermentation
+ {s:1,q:"The main sugar in wort (~55%) is:",a:["Maltose","Glucose","Sucrose","Maltotriose"],k:0,e:"Wort is ~55% maltose, the product of β-amylase on starch, plus ~10% glucose and ~11% maltotriose."},
+ {s:1,q:"Maltose is built from:",a:["Two glucose units","Glucose + fructose","Two fructose units","Glucose + galactose"],k:0,e:"Maltose = two glucose units joined by an α-1,4 bond."},
+ {s:1,q:"Which enzyme hydrolyzes maltose into glucose inside the cell?",a:["Maltase (α-1,4-glucosidase)","β-amylase","Invertase","Lactase"],k:0,e:"Maltase, or α-1,4-glucosidase, splits intracellular maltose into two glucose units for glycolysis."},
+ {s:1,q:"How does maltose cross the yeast cell membrane?",a:["Active transport (proton symport, uses ATP)","Simple passive diffusion","Facilitated diffusion, no energy","Endocytosis"],k:0,e:"Maltose rides an ATP-powered proton symporter against its gradient. Glucose, by contrast, uses energy-free facilitated diffusion."},
+ {s:1,q:"The net ATP yield of glycolysis is:",a:["2 ATP","4 ATP","28 ATP","0 ATP"],k:0,e:"Glycolysis spends 2 ATP and makes 4 — a net gain of 2 — and needs no oxygen."},
+ {s:1,q:"The main purpose of alcoholic fermentation is to:",a:["Regenerate NAD+ from NADH","Produce most of the cell's ATP","Make CO2 for carbonation","Build cell membranes"],k:0,e:"Fermentation reoxidizes NADH to NAD+ so glycolysis can continue; ethanol is where the electrons end up."},
+ {s:1,q:"The Crabtree effect is yeast's tendency to:",a:["Ferment even with oxygen present, if sugar is available","Respire whenever sugar is high","Stop growing in oxygen","Ferment only when sugar is absent"],k:0,e:"Brewer's yeast repress respiration in favor of fermentation when fermentable sugar is around — even with oxygen present."},
+ {s:1,q:"Respiration yields roughly how many ATP, versus fermentation's 2?",a:["~28","~4","~10","~2 (the same)"],k:0,e:"Respiration nets ~28 ATP vs. 2 for fermentation. Yeast still ferment — trading efficiency for speed and ethanol as a weapon against competitors."},
+ {s:1,q:"Above roughly what glucose concentration does the Crabtree effect switch on?",a:["0.4% (w/v)","4%","0.04%","10%"],k:0,e:"Above ~0.4% glucose. Normal wort starts above 1%, so yeast ferment from the start — and the oxygen is gone before glucose drops that low."},
+ {s:1,q:"While glucose is plentiful, yeast switch off the maltose genes. This gene-level control is:",a:["Glucose (catabolite) repression","Feedback inhibition of an enzyme","Protein denaturation","Facilitated diffusion"],k:0,e:"High glucose represses the genes for maltose uptake and breakdown — IF/THEN logic at the DNA level, not inhibition of an existing enzyme."},
+ // 2 — Oxygen, Lipids & Esters
+ {s:2,q:"Brewers aerate wort before pitching yeast mainly so the yeast can:",a:["Make sterols and unsaturated fatty acids","Carry out aerobic respiration","Kill contaminating bacteria","Carbonate the beer"],k:0,e:"The oxygen goes into membrane lipids — ergosterol and unsaturated fatty acids — not into respiration (Crabtree)."},
+ {s:2,q:"The sterol yeast make for their membranes (their 'cholesterol') is:",a:["Ergosterol","Cholesterol","Lanosterol","Stigmasterol"],k:0,e:"Yeast use ergosterol; humans use cholesterol. Several ergosterol-synthesis steps require oxygen."},
+ {s:2,q:"Isoamyl acetate gives which aroma, classic in hefeweizens?",a:["Banana","Clove","Rose","Pear skin"],k:0,e:"Isoamyl acetate = banana, made when alcohol acetyltransferase joins acetyl-CoA to isoamyl alcohol."},
+ {s:2,q:"An ester forms from an alcohol plus:",a:["An organic acid (or acetyl-CoA)","A sugar","Oxygen","Another alcohol"],k:0,e:"Alcohol + acid → ester. In yeast the acyl group comes from acetyl-CoA for the common acetate esters."},
+ {s:2,q:"Low oxygen — or underpitching yeast — tends to produce:",a:["More esters","Fewer esters","More sterols","Less ethanol"],k:0,e:"Less oxidation leaves more acetyl-CoA for the ester pathway. Some brewers underpitch on purpose for Belgian styles."},
+ {s:2,q:"Fusel (higher) alcohols are byproducts of:",a:["Amino acid metabolism","Lipid synthesis","Glycolysis","Sterol synthesis"],k:0,e:"Fusels come from making and breaking amino acids. Fast growth — high temperature — raises them."},
+ {s:2,q:"Which amino acid is converted into isoamyl alcohol, the precursor of the banana ester?",a:["Leucine","Valine","Methionine","Tyrosine"],k:0,e:"Leucine → isoamyl alcohol → isoamyl acetate. (Valine → isobutanol; tyrosine → tyrosol.)"},
+ {s:2,q:"Which enzyme links acetyl-CoA to isoamyl alcohol to form the banana ester?",a:["Alcohol acetyltransferase","Alcohol dehydrogenase","Pyruvate decarboxylase","Maltase"],k:0,e:"Alcohol acetyltransferase. Its level varies widely by strain — more enzyme means more esters."},
+ {s:2,q:"Unsaturated (double-bonded) fatty acids affect the yeast membrane by:",a:["Increasing its fluidity","Making it rigid","Blocking transport","Adding color"],k:0,e:"Double bonds kink the chains and raise fluidity — like oil vs. solid fat. Oxygen is needed to install them."},
+ {s:2,q:"Why do some brewers add a trace of olive oil to their yeast?",a:["To supply unsaturated lipid building blocks in place of aerating","To add flavor","To kill bacteria","To raise the alcohol level"],k:0,e:"Olive oil provides unsaturated fatty acids, substituting for wort aeration — famously a toothpick-dip's worth for 5 gallons."},
+ // 3 — Sulfur & Water
+ {s:3,q:"DMS — the 'cooked corn/cabbage' aroma — comes from:",a:["S-methyl methionine (SMM) in malt, released by heat","Sulfate in the water","Hop oils","Yeast breaking down cysteine"],k:0,e:"SMM forms in germinating barley; heat converts it to DMS. Pale/pilsner malt is high in SMM, so it needs a long boil."},
+ {s:3,q:"To minimize DMS in the finished beer you should:",a:["Boil vigorously, uncovered, ~90 min, then cool fast","Cover the boil to trap aromas","Boil for a shorter time","Add corn as an adjunct"],k:0,e:"A long, open, rolling boil drives DMS off; rapid cooling stops SMM from making more during a slow cool-down."},
+ {s:3,q:"Hydrogen sulfide (rotten-egg aroma) mostly comes from:",a:["Breakdown of sulfur-containing amino acids during fermentation","Sulfate in the water","Hop resins","Added bisulfite"],k:0,e:"H2S arises from sulfur amino-acid metabolism, worsened when yeast lack vitamin B5 (pantothenate)."},
+ {s:3,q:"Sulfate (SO4) in brewing water does what to flavor?",a:["Dries the beer and accentuates bitterness","Adds sweetness","Adds body and roundness","Reduces bitterness"],k:0,e:"Sulfate gives a crisp, dry, more bitter (astringent) character. NW Iowa / SW Minnesota groundwater can be very high in it."},
+ {s:3,q:"Bisulfite added to beer acts mainly as a(n):",a:["Antioxidant that masks staling","Sweetener","Bittering agent","Yeast nutrient"],k:0,e:"Bisulfite reacts with carbonyl staling compounds, improving flavor stability."},
+ {s:3,q:"The main staling compound in beer, tasting of 'wet cardboard', is:",a:["trans-2-nonenal","Diacetyl","Acetaldehyde","Dimethyl sulfide"],k:0,e:"trans-2-Nonenal forms from fat oxidation; bisulfite reacts with it to delay staling."},
+ {s:3,q:"Which malt tends to be highest in SMM, so it needs the longest boil?",a:["Very pale / pilsner malt","Dark roasted malt","Crystal malt","Chocolate malt"],k:0,e:"Pale, lightly-kilned pilsner malt keeps more SMM, driving more DMS unless boiled long and hard."},
+ {s:3,q:"Sulfate added to brewing water usually comes from gypsum, which is:",a:["Calcium sulfate (CaSO4)","Sodium chloride","Calcium carbonate","Magnesium oxide"],k:0,e:"Gypsum is CaSO4 — a common brewing-salt addition to raise sulfate and sharpen bitterness."},
+ {s:3,q:"Mercaptans (thiols) in beer are generally described as:",a:["Skunky or garlicky","Fruity and sweet","Toasty and nutty","Floral"],k:0,e:"Thiols give skunky/sun-struck and garlic notes; they also form from sulfur amino-acid metabolism."},
+ {s:3,q:"DMS is produced from S-methyl methionine, a derivative of which amino acid?",a:["Methionine","Cysteine","Leucine","Arginine"],k:0,e:"SMM derives from methionine in the germinating barley seed; heat converts SMM to DMS."},
+ // 4 — GMOs & Engineering
+ {s:4,q:"Gene editing (CRISPR) differs from making a transgenic organism because it:",a:["Adds no foreign DNA — just precise small edits","Always inserts a gene from another species","Uses random radiation to mutate","Clones whole organisms"],k:0,e:"Gene editing makes targeted changes with no foreign DNA; transgenics insert a gene from another species."},
+ {s:4,q:"Transgenic modification specifically means:",a:["Inserting a foreign gene from another species","Editing a native gene with CRISPR","Breeding two strains","Exposing cells to UV light"],k:0,e:"Transgenic = a gene from one species placed into another (e.g. Bt corn carrying a bacterial gene)."},
+ {s:4,q:"Overexpressing GPD1 in yeast boosts production of:",a:["Glycerol (sweeter wine, lower alcohol)","Ethanol","Esters","CO2"],k:0,e:"GPD1 overexpression gave a 4-fold rise in glycerol and lower ethanol — sweeter wine, lower-alcohol beer."},
+ {s:4,q:"A GMO wine yeast approved in the US knocks out arginase to cut:",a:["Ethyl carbamate (urethane), a probable carcinogen","Methanol","Acetaldehyde","Histamine"],k:0,e:"Ethyl carbamate forms from ethanol + urea (from arginine). Removing arginase — or adding a bacterial urease — eliminates it."},
+ {s:4,q:"Ethyl carbamate forms by a spontaneous reaction of ethanol with:",a:["Urea (from arginine breakdown)","Sulfate","Acetyl-CoA","Glycerol"],k:0,e:"Urea, released when arginase breaks down arginine, reacts with ethanol to form ethyl carbamate."},
+ {s:4,q:"Golden Rice was engineered to make:",a:["Beta-carotene (provitamin A)","Vitamin C","Insulin","Bt insect toxin"],k:0,e:"Golden Rice makes beta-carotene, which ordinary rice lacks — aimed at vitamin A deficiency."},
+ {s:4,q:"Bt corn carries an insect-toxin gene borrowed from which organism?",a:["Bacillus thuringiensis","Agrobacterium","Saccharomyces cerevisiae","E. coli"],k:0,e:"Bt corn expresses a toxin from the bacterium Bacillus thuringiensis — harmful to certain insects, not to humans."},
+ {s:4,q:"'Roundup Ready' crops are engineered to tolerate which herbicide?",a:["Glyphosate","Atrazine","Paraquat","2,4-D"],k:0,e:"They carry an Agrobacterium enzyme that glyphosate (Roundup) does not inhibit."},
+ {s:4,q:"Flocculation of brewing yeast is:",a:["Calcium-dependent, reversible clumping of cells into flocs","Yeast dying at high alcohol","Switching from maltose to glucose","Producing killer toxins"],k:0,e:"Flocculation is reversible, calcium-dependent aggregation via surface proteins; engineered timing clears the beer without stalling fermentation."},
+ {s:4,q:"Overexpressing alcohol acetyltransferase in yeast increases:",a:["Acetate esters (e.g. banana isoamyl acetate)","Fusel alcohols","Glycerol","Hydrogen sulfide"],k:0,e:"More of this enzyme means more acetate esters — a GMO route to fruitier beer, sake and young wine."},
+];
+
+const ROUND=10, MIX=15;
+let run=null; // {order, idx, correct, chosen, locked, missed[], subjects Set}
+let best=load();
+
+function load(){try{return JSON.parse(localStorage.getItem("brew.best")||"{}")||{}}catch(e){return{}}}
+function save(){try{localStorage.setItem("brew.best",JSON.stringify(best))}catch(e){}}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function show(id){["start","quiz","results"].forEach(s=>$("#"+s).hidden=s!==id)}
+
+/* start screen */
+function buildStart(){
+  const g=$("#sgrid");g.innerHTML="";
+  SUB.forEach((name,i)=>{
+    const n=Q.filter(q=>q.s===i).length;
+    const b=document.createElement("button");b.className="subject";
+    b.innerHTML=`<span class="dot" style="background:${DOT[i]}">${"ABCDE"[i]}</span>
+      <span class="n"></span><span class="c">${n} questions</span>`;
+    b.querySelector(".n").textContent=name;
+    b.onclick=()=>start(Q.map((q,qi)=>qi).filter(qi=>Q[qi].s===i));
+    g.appendChild(b);
+  });
+  const bl=bestLine();$("#best").textContent=bl;$("#best2").textContent=bl;
+}
+function bestLine(){
+  const keys=Object.keys(best);if(!keys.length)return "";
+  const full=best["Full review"];
+  if(full!=null)return `Best full review: ${full} / 50`;
+  return "";
+}
+
+function start(indices,label){
+  let order=shuffle(indices);
+  run={label:label||null,order,idx:0,correct:0,locked:false,chosen:null,missed:[],subjects:new Set(order.map(i=>Q[i].s))};
+  show("quiz");render();
+}
+$("#mixBtn").onclick=()=>start(shuffle(Q.map((q,i)=>i)).slice(0,MIX),"Quick mix");
+$("#allBtn").onclick=()=>start(Q.map((q,i)=>i),"Full review");
+$("#restart").onclick=()=>{buildStart();show("start")};
+
+/* quiz */
+function render(){
+  const qi=run.order[run.idx], item=Q[qi];
+  run.locked=false;run.chosen=null;
+  $("#count").textContent=`${run.idx+1} / ${run.order.length}`;
+  $("#prog").style.width=(run.idx/run.order.length*100)+"%";
+  const stag=$("#stag");stag.textContent=SUB[item.s];stag.style.color=DOT[item.s];
+  $("#sc").textContent=`${run.correct} correct`;
+  const qEl=$("#q");qEl.textContent=item.q;qEl.classList.remove("enter");void qEl.offsetWidth;qEl.classList.add("enter");
+  $("#fb").hidden=true;
+  // shuffle options, track correct
+  const opts=item.a.map((t,i)=>({t,correct:i===item.k}));
+  const sh=shuffle(opts);run._opts=sh;
+  const box=$("#opts");box.innerHTML="";
+  sh.forEach((o,i)=>{
+    const b=document.createElement("button");b.className="opt";b.type="button";
+    b.innerHTML=`<span class="lab">${"ABCD"[i]}</span><span class="tx"></span><span class="mk"></span>`;
+    b.querySelector(".tx").textContent=o.t;
+    b.onclick=()=>choose(i);box.appendChild(b);
+  });
+}
+function choose(i){
+  if(run.locked)return;run.locked=true;run.chosen=i;
+  const qi=run.order[run.idx], item=Q[qi], sh=run._opts;
+  const correct=sh[i].correct;
+  const btns=$("#opts").querySelectorAll(".opt");
+  btns.forEach((b,bi)=>{b.disabled=true;
+    const mk=b.querySelector(".mk");
+    if(sh[bi].correct){b.classList.add("correct");mk.textContent="✓"}
+    else if(bi===i){b.classList.add("wrong");mk.textContent="✗"}
+    else b.classList.add("faded");
+  });
+  if(correct)run.correct++;
+  else run.missed.push({q:item.q,ans:item.a[item.k],e:item.e});
+  $("#sc").textContent=`${run.correct} correct`;
+  const fb=$("#fb");fb.hidden=false;fb.classList.remove("enter");void fb.offsetWidth;fb.classList.add("enter");
+  $("#ex").innerHTML=(correct?"<b>Correct.</b> ":"<b>Not quite.</b> ")+esc(item.e);
+  $("#nx").textContent=(run.idx+1>=run.order.length)?"See results":"Next";
+  $("#prog").style.width=((run.idx+1)/run.order.length*100)+"%";
+  $("#nx").focus();
+}
+function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+$("#nx").onclick=()=>{
+  if(run.idx+1>=run.order.length){finish();return}
+  run.idx++;render();
+};
+
+/* results */
+function finish(){
+  show("results");
+  const total=run.order.length, score=run.correct, pct=Math.round(score/total*100);
+  $("#rscore").textContent=score;$("#rof").textContent=` / ${total}`;
+  const v=pct>=90?["Excellent","You know this material cold."]
+    :pct>=75?["Strong","Solid grasp — a few spots to firm up."]
+    :pct>=60?["Getting there","A good base; review the misses below."]
+    :pct>=40?["Keep at it","Worth another pass through these topics."]
+    :["Early days","Re-read the lectures, then run it again."];
+  $("#rtitle").textContent=v[0];$("#verdict").textContent=v[1];
+  // per-subject bars
+  const bySub={};run.order.forEach(i=>{const s=Q[i].s;(bySub[s]=bySub[s]||{c:0,t:0}).t++});
+  // recount correct per subject from missed
+  const missedQ=new Set(run.missed.map(m=>m.q));
+  run.order.forEach(i=>{const s=Q[i].s;if(!missedQ.has(Q[i].q))bySub[s].c++});
+  const bars=$("#bars");bars.innerHTML="";
+  Object.keys(bySub).sort().forEach(s=>{const d=bySub[s];const p=Math.round(d.c/d.t*100);
+    const row=document.createElement("div");row.className="bar";
+    row.innerHTML=`<span class="bn"></span><span class="bt"><i style="width:${p}%;background:${DOT[s]}"></i></span><span class="bv">${d.c}/${d.t}</span>`;
+    row.querySelector(".bn").textContent=SUB[s];bars.appendChild(row);
+  });
+  if(Object.keys(bySub).length<2)bars.hidden=true;else bars.hidden=false;
+  // review
+  const rev=$("#review"),missed=$("#missed");
+  if(run.missed.length){rev.hidden=false;$("#revsum").textContent=`Review what you missed (${run.missed.length})`;
+    missed.innerHTML="";run.missed.forEach(m=>{const d=document.createElement("div");d.className="miss";
+      d.innerHTML=`<div class="mq"></div><div class="ma"></div><div class="me"></div>`;
+      d.querySelector(".mq").textContent=m.q;d.querySelector(".ma").textContent="Answer: "+m.ans;
+      d.querySelector(".me").textContent=m.e;missed.appendChild(d);});
+    $("#retryMissed").hidden=false;
+  }else{rev.hidden=true;$("#retryMissed").hidden=true}
+  // best
+  if(run.label){const prev=best[run.label];if(prev==null||score>prev){best[run.label]=score;save()}}
+  const bl=bestLine();$("#best2").textContent=bl;
+}
+$("#retryMissed").onclick=()=>{
+  const miss=run.missed.map(m=>Q.findIndex(x=>x.q===m.q)).filter(i=>i>=0);
+  start(miss,run.label);
+};
+addEventListener("keydown",e=>{
+  if(!$("#quiz").hidden){
+    if(!run.locked){const n="1234".indexOf(e.key);if(n>=0&&n<run._opts.length){choose(n);return}
+      const a="abcd".indexOf(e.key.toLowerCase());if(a>=0&&a<run._opts.length){choose(a);return}}
+    else if(e.key==="Enter"){$("#nx").click()}
+  }
+});
+
+buildStart();
+</script>
