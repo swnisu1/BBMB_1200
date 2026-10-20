@@ -1,15 +1,6 @@
 # BBMB 1200 — Chemistry of Beer (course demos)
 
-Interactive materials for BBMB 1200.
+- **`brew-mud/`** — source for the Brew MUD, a text-adventure study guide for the class
+  (Python). Copy of `swnisu-mud/brew-mud`; the live site deploys from that original repo.
 
-## Contents
-
-- **`index.html`** — *Brew Blitz*, a neon arcade quiz on yeast & fermentation (50 questions
-  by subject, shuffled answers, timed scoring). Live via GitHub Pages:
-  `https://swnisu1.github.io/BBMB_1200/`.
-- **`brew-mud/`** — source for the Brew MUD, a text-adventure game for the class
-  (Python). The game also runs live at https://brew-mud.onrender.com/.
-
-> Note: `brew-mud/` is a copy of the source from the `swnisu-mud/brew-mud` repository, kept
-> here for reference. The live site deploys from that original repository, so edits made
-> here do not change the live game unless its deployment is pointed at this copy.
+*(An interactive review quiz will be built here during the Oct. 22 workshop and added as `index.html`.)*
