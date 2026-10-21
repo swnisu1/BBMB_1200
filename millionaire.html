@@ -12,6 +12,7 @@
     --text: #f2f3ff; --muted: #a9afd9;
     --right: #2fbf5b; --wrong: #e0453a; --pick: #f29a1f;
   }
+  :root { color-scheme: dark; }
   * { box-sizing: border-box; }
   html, body { margin: 0; min-height: 100%; }
   html { background: var(--bg1); }
@@ -187,6 +188,14 @@ const $ = id => document.getElementById(id);
 const fmt = n => "$" + n.toLocaleString("en-US");
 
 let state;
+
+/** Two-step confirm (dialogs are blocked in some embeds): first click arms, second click acts. */
+function confirmClick(btn, prompt, action) {
+  if (btn.dataset.armed) { clearTimeout(+btn.dataset.armed); delete btn.dataset.armed; btn.textContent = btn.dataset.label; action(); return; }
+  btn.dataset.label = btn.textContent;
+  btn.textContent = prompt;
+  btn.dataset.armed = setTimeout(() => { delete btn.dataset.armed; btn.textContent = btn.dataset.label; }, 3000);
+}
 
 function pickQuestion(difficulty, exclude) {
   const seen = new Set(store.get(SEEN_KEY, []));
@@ -429,7 +438,7 @@ $("startBtn").onclick = newGame;
 $("againBtn").onclick = newGame;
 $("finalBtn").onclick = finalAnswer;
 $("nextBtn").onclick = nextQuestion;
-$("walkBtn").onclick = () => { if (!state.locked && confirm(`Walk away with ${fmt(state.level ? PRIZES[state.level - 1] : 0)}?`)) endGame("walk"); };
+$("walkBtn").onclick = () => { if (!state.locked) confirmClick($("walkBtn"), `Tap again to keep ${fmt(state.level ? PRIZES[state.level - 1] : 0)}`, () => endGame("walk")); };
 $("ll5050").onclick = fiftyFifty;
 $("llPoll").onclick = askTheClass;
 $("llSwap").onclick = swapQuestion;
