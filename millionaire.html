@@ -27,6 +27,9 @@
   header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   header h1 { font-size: 1.25rem; margin: 0; color: var(--gold); letter-spacing: .03em; }
   header a { font-size: .9rem; }
+  .head-links { display: flex; align-items: center; gap: 14px; }
+  .sound { border: 1px solid var(--edge); background: var(--panel); color: var(--text); border-radius: 999px; padding: 4px 12px; font-size: .85rem; cursor: pointer; }
+  .sound:hover { border-color: var(--gold); }
 
   .game { display: grid; grid-template-columns: 1fr 230px; gap: 20px; margin-top: 16px; }
   .game > * { min-width: 0; }
@@ -116,7 +119,10 @@
 <div class="wrap">
   <header>
     <h1>🍺 Who Wants to Be a Brewmaster?</h1>
-    <a href="index.html">← All quizzes</a>
+    <div class="head-links">
+      <button class="sound" id="soundBtn" type="button" aria-pressed="true">🔊 Sound on</button>
+      <a href="index.html">← All quizzes</a>
+    </div>
   </header>
 
   <!-- Start screen -->
@@ -182,12 +188,100 @@ const SAFE = new Set([4, 9]);                               // indexes of $1,000
 const LEVEL_DIFFICULTY = [1,1,1, 2,2,2, 3,3,3, 4,4,4, 5,5,5];
 const LETTERS = ["A", "B", "C", "D"];
 const SEEN_KEY = "bbmb-millionaire-seen";
+const SOUND_KEY = "bbmb-millionaire-sound";
 const STATS_KEY = "bbmb-millionaire-stats";
 
 const $ = id => document.getElementById(id);
 const fmt = n => "$" + n.toLocaleString("en-US");
 
 let state;
+
+/* Studio-audience sounds, synthesized with Web Audio (no audio files).
+ * cheer(size): 1 = correct answer, 2 = safe haven, 3 = million-dollar win. aww(): wrong answer. */
+const Crowd = {
+  on: store.get(SOUND_KEY, true),
+  ctx: null,
+  unlock() {
+    if (!this.on) return;
+    try {
+      this.ctx ||= new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ctx.state === "suspended") this.ctx.resume();
+    } catch { this.ctx = null; }
+  },
+  noise(seconds) {
+    const ctx = this.ctx, buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * seconds), ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource(); src.buffer = buf; return src;
+  },
+  ready() { this.unlock(); return this.on && this.ctx; },
+
+  cheer(size = 1) {
+    if (!this.ready()) return;
+    const ctx = this.ctx, t = ctx.currentTime;
+    const dur = [0, 1.8, 3.2, 5.5][size], peak = [0, 0.32, 0.45, 0.55][size];
+    const out = ctx.createGain(); out.connect(ctx.destination);
+    out.gain.setValueAtTime(0.0001, t);
+    out.gain.exponentialRampToValueAtTime(peak, t + 0.25);
+    out.gain.setValueAtTime(peak, t + dur * 0.45);
+    out.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+    // Crowd roar: band-limited noise with a slow, uneven swell.
+    const roar = this.noise(dur), bp = ctx.createBiquadFilter(), lfo = ctx.createOscillator(), lfoGain = ctx.createGain(), rg = ctx.createGain();
+    bp.type = "bandpass"; bp.frequency.value = 900; bp.Q.value = 0.6;
+    lfo.frequency.value = 3.3; lfoGain.gain.value = 0.25; rg.gain.value = 0.7;
+    lfo.connect(lfoGain).connect(rg.gain);
+    roar.connect(bp).connect(rg).connect(out);
+    roar.start(t); lfo.start(t); roar.stop(t + dur); lfo.stop(t + dur);
+
+    // Hand claps: many short, bright noise bursts at random times.
+    const claps = Math.round(dur * [0, 28, 38, 48][size]);
+    for (let i = 0; i < claps; i++) {
+      const ct = t + Math.random() * dur * 0.85, c = this.noise(0.05), hp = ctx.createBiquadFilter(), g = ctx.createGain();
+      hp.type = "bandpass"; hp.frequency.value = 1200 + Math.random() * 1400; hp.Q.value = 1.2;
+      g.gain.setValueAtTime(0.5 + Math.random() * 0.5, ct);
+      g.gain.exponentialRampToValueAtTime(0.001, ct + 0.04);
+      c.connect(hp).connect(g).connect(out); c.start(ct); c.stop(ct + 0.05);
+    }
+
+    // "Woo!" whistles for the bigger moments.
+    const woos = [0, 0, 3, 7][size];
+    for (let i = 0; i < woos; i++) {
+      const wt = t + 0.2 + Math.random() * dur * 0.6, o = ctx.createOscillator(), g = ctx.createGain();
+      const f = 900 + Math.random() * 700;
+      o.type = "sine";
+      o.frequency.setValueAtTime(f * 0.7, wt);
+      o.frequency.exponentialRampToValueAtTime(f * 1.25, wt + 0.25);
+      o.frequency.exponentialRampToValueAtTime(f * 0.9, wt + 0.6);
+      g.gain.setValueAtTime(0.0001, wt);
+      g.gain.exponentialRampToValueAtTime(0.06, wt + 0.08);
+      g.gain.exponentialRampToValueAtTime(0.0001, wt + 0.6);
+      o.connect(g).connect(out); o.start(wt); o.stop(wt + 0.65);
+    }
+  },
+
+  aww() {
+    if (!this.ready()) return;
+    const ctx = this.ctx, t = ctx.currentTime, dur = 1.6;
+    const out = ctx.createGain(), formant = ctx.createBiquadFilter();
+    formant.type = "lowpass"; formant.frequency.value = 900; formant.Q.value = 2;
+    formant.connect(out).connect(ctx.destination);
+    out.gain.setValueAtTime(0.0001, t);
+    out.gain.exponentialRampToValueAtTime(0.45, t + 0.2);
+    out.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    // A dozen slightly detuned "voices" sliding down together.
+    for (let i = 0; i < 12; i++) {
+      const o = ctx.createOscillator(), g = ctx.createGain(), f = 190 + Math.random() * 160;
+      o.type = i % 2 ? "sawtooth" : "triangle";
+      o.frequency.setValueAtTime(f * 1.15, t);
+      o.frequency.exponentialRampToValueAtTime(f * 0.7, t + dur);
+      g.gain.value = 0.08;
+      o.connect(g).connect(formant); o.start(t + Math.random() * 0.08); o.stop(t + dur);
+    }
+    const breath = this.noise(dur), bg = ctx.createGain();
+    bg.gain.value = 0.15; breath.connect(bg).connect(formant); breath.start(t); breath.stop(t + dur);
+  },
+};
 
 /** Two-step confirm (dialogs are blocked in some embeds): first click arms, second click acts. */
 function confirmClick(btn, prompt, action) {
@@ -278,6 +372,10 @@ function finalAnswer() {
     buttons[state.answerIndex].classList.add("correct");
     if (!right) buttons[state.picked].classList.replace("picked", "wrong");
     showExplanation(right);
+    if (!right) Crowd.aww();
+    else if (state.level === PRIZES.length - 1) Crowd.cheer(3);
+    else if (SAFE.has(state.level)) Crowd.cheer(2);
+    else Crowd.cheer(1);
     if (!right) {
       setTimeout(() => endGame("wrong"), 2200);
     } else if (state.level === PRIZES.length - 1) {
@@ -434,7 +532,13 @@ function showStats(el) {
 
 $("bankSize").textContent = QUESTIONS.length;
 showStats($("stats"));
-$("startBtn").onclick = newGame;
+$("startBtn").onclick = () => { Crowd.unlock(); newGame(); };
+function showSound() {
+  $("soundBtn").textContent = Crowd.on ? "🔊 Sound on" : "🔇 Sound off";
+  $("soundBtn").setAttribute("aria-pressed", Crowd.on);
+}
+$("soundBtn").onclick = () => { Crowd.on = !Crowd.on; store.set(SOUND_KEY, Crowd.on); if (Crowd.on) Crowd.unlock(); showSound(); };
+showSound();
 $("againBtn").onclick = newGame;
 $("finalBtn").onclick = finalAnswer;
 $("nextBtn").onclick = nextQuestion;
