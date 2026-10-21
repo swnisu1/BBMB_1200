@@ -254,7 +254,7 @@ const RAW_QUESTIONS = [
   ["mash", 1, "During the mash, starches are broken down into:", "Sugars", ["Proteins", "Alcohol", "Hops"], "Amylases turn starch into fermentable sugars."],
   ["mash", 2, "“Liquefaction” in the mash is the conversion of:", "Starch into dextrins (by α-amylase)", ["Maltose into ethanol", "Dextrins into protein", "Water into steam"], "α-amylase reduces chain length, liquefying the starch."],
   ["mash", 2, "“Saccharification” is the conversion of liquefied starch into maltose by:", "β-amylase", ["α-amylase", "Yeast", "Hops"], "β-amylase performs saccharification."],
-  ["mash", 2, "A “limit dextrin” is:", "What's left over after an enzyme completes its reaction", ["The maximum sugar a yeast can ferment", "A hop compound", "Pure glucose"], "Limit dextrins are the leftovers the enzyme can't break further."],
+  ["mash", 2, "A “limit dextrin” is:", "What's left over after the amylases finish breaking down starch", ["The maximum sugar a yeast can ferment", "A hop compound", "Pure glucose"], "Limit dextrins are the leftover (often branched) glucose chains that α- and β-amylase can't break down any further."],
   ["mash", 2, "A dextrin is basically:", "A smaller, more soluble version of starch", ["A type of protein", "Pure maltose", "A hop acid"], "Dextrins are shorter glucose chains."],
   ["mash", 2, "What does α-amylase do to dextrin chains?", "Reduces their length", ["Makes them longer", "Converts them to protein", "Ferments them"], "α-amylase chops starch into shorter dextrins."],
   ["mash", 2, "What re-activates the amylases after malting?", "Soaking malt in hot water during the mash", ["Boiling the wort", "Adding yeast", "Cooling the wort"], "The mash re-activates the amylases produced in malting."],
