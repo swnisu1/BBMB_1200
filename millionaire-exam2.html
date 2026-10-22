@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who Wants to Be a Brewmaster? · Exam 2</title>
+<style>
+  :root {
+    --bg1: #0b0830; --bg2: #1d1060;
+    --panel: #120c45; --edge: #5a6fe0;
+    --gold: #f5c542; --gold-dim: #a8842a;
+    --text: #f2f3ff; --muted: #a9afd9;
+    --right: #2fbf5b; --wrong: #e0453a; --pick: #f29a1f;
+  }
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  html { background: var(--bg1); }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background: radial-gradient(ellipse at top, var(--bg2), var(--bg1) 70%) fixed;
+    min-height: 100vh;
+  }
+  a { color: var(--gold); }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 16px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 1.25rem; margin: 0; color: var(--gold); letter-spacing: .03em; }
+  header a { font-size: .9rem; }
+
+  .game { display: grid; grid-template-columns: 1fr 230px; gap: 20px; margin-top: 16px; }
+  .game > * { min-width: 0; }
+  @media (max-width: 800px) { .game { grid-template-columns: 1fr; } .ladder { order: -1; } }
+
+  .lifelines { display: flex; gap: 10px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .lifeline {
+    border: 2px solid var(--edge); background: var(--panel); color: var(--text);
+    border-radius: 999px; padding: 8px 16px; font-size: .95rem; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .lifeline:hover:not(:disabled) { border-color: var(--gold); }
+  .lifeline:disabled { opacity: .35; cursor: not-allowed; text-decoration: line-through; }
+  .lifeline .ico { font-weight: 700; color: var(--gold); }
+
+  .meta { text-align: center; color: var(--muted); font-size: .9rem; margin-bottom: 8px; }
+  .question {
+    background: linear-gradient(180deg, #1a1466, var(--panel));
+    border: 2px solid var(--edge); border-radius: 18px;
+    padding: 22px 24px; font-size: 1.25rem; line-height: 1.4; text-align: center;
+    min-height: 110px; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 24px rgba(90,111,224,.35);
+  }
+  .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+  @media (max-width: 600px) { .answers { grid-template-columns: 1fr; } .question { font-size: 1.1rem; } }
+  .answer {
+    text-align: left; border: 2px solid var(--edge); background: var(--panel); color: var(--text);
+    border-radius: 999px; padding: 12px 18px; font-size: 1rem; cursor: pointer; line-height: 1.3;
+    transition: background .15s, border-color .15s;
+  }
+  .answer .letter { color: var(--gold); font-weight: 700; margin-right: 8px; }
+  .answer:hover:not(:disabled) { border-color: var(--gold); }
+  .answer.picked { background: var(--pick); border-color: var(--pick); color: #1b1000; }
+  .answer.picked .letter { color: #1b1000; }
+  .answer.correct { background: var(--right); border-color: var(--right); color: #fff; animation: flash .45s 3; }
+  .answer.correct .letter { color: #fff; }
+  .answer.wrong { background: var(--wrong); border-color: var(--wrong); color: #fff; }
+  .answer.wrong .letter { color: #fff; }
+  .answer.hidden { visibility: hidden; }
+  .answer:disabled { cursor: default; }
+  @keyframes flash { 50% { filter: brightness(1.5); } }
+
+  .controls { display: flex; justify-content: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+  .btn {
+    border: 2px solid var(--gold); background: transparent; color: var(--gold);
+    border-radius: 10px; padding: 10px 20px; font-size: 1rem; cursor: pointer; font-weight: 600;
+  }
+  .btn.primary { background: var(--gold); color: #1b1000; }
+  .btn:hover { filter: brightness(1.15); }
+  .btn[hidden] { display: none; }
+
+  .panel {
+    margin-top: 16px; background: rgba(18,12,69,.85); border: 1px solid var(--edge);
+    border-radius: 14px; padding: 14px 18px; line-height: 1.45;
+  }
+  .panel h3 { margin: 0 0 6px; color: var(--gold); font-size: 1rem; }
+  .panel[hidden] { display: none; }
+
+  .poll { display: flex; justify-content: space-around; align-items: flex-end; height: 150px; gap: 10px; margin-top: 8px; }
+  .bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .bar .fill { width: 60%; background: linear-gradient(180deg, var(--gold), var(--gold-dim)); border-radius: 4px 4px 0 0; transition: height .8s; }
+  .bar .pct { font-size: .85rem; margin-bottom: 4px; }
+  .bar .lbl { font-weight: 700; color: var(--gold); margin-top: 4px; }
+
+  .ladder { background: rgba(18,12,69,.85); border: 1px solid var(--edge); border-radius: 14px; padding: 10px; align-self: start; }
+  .ladder ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column-reverse; }
+  .ladder li { display: flex; justify-content: space-between; padding: 4px 10px; border-radius: 6px; font-size: .92rem; color: var(--muted); }
+  .ladder li .n { width: 2em; }
+  .ladder li.safe { color: var(--text); font-weight: 700; }
+  .ladder li.done { color: var(--gold-dim); }
+  .ladder li.current { background: var(--pick); color: #1b1000; font-weight: 700; }
+  @media (max-width: 800px) {
+    .ladder ol { flex-direction: row-reverse; overflow-x: auto; gap: 4px; }
+    .ladder li { flex-direction: column; align-items: center; white-space: nowrap; font-size: .78rem; padding: 4px 6px; }
+  }
+
+  .splash { text-align: center; max-width: 720px; margin: 30px auto; }
+  .splash h2 { color: var(--gold); font-size: 2rem; margin: 0 0 8px; }
+  .splash p, .splash li { color: var(--muted); line-height: 1.5; }
+  .splash ul { text-align: left; display: inline-block; margin: 8px auto 16px; }
+  .big { font-size: 2.4rem; color: var(--gold); font-weight: 800; margin: 10px 0; }
+  .stats { color: var(--muted); font-size: .95rem; }
+  button:focus-visible, a:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🍺 Who Wants to Be a Brewmaster? · Exam 2</h1>
+    <a href="index.html">← All quizzes</a>
+  </header>
+
+  <!-- Start screen -->
+  <section class="splash" id="start">
+    <h2>Who Wants to Be a Brewmaster? · Exam 2</h2>
+    <p>Climb 15 questions from the BBMB 1200 Exam #2 material, increasing in difficulty, to win a (pretend) $1,000,000.</p>
+    <p>Yeast &amp; brewing microbes · Sugar transport &amp; fermentation · Oxygen &amp; flavor · Sulfur · Yeast engineering · Browning</p>
+    <p>Practice questions based on the course slides, including the 2026 updates. These are study aids, not predictions of exam questions.</p>
+    <ul>
+      <li><b>Safe havens</b> at $1,000 (Q5) and $32,000 (Q10): miss after reaching one and you keep it.</li>
+      <li><b>Walk away</b> any time to keep what you've won.</li>
+      <li><b>Three lifelines</b>, each usable once per game:
+        <ul>
+          <li><b>50:50</b> removes two wrong answers.</li>
+          <li><b>Ask the Class</b> polls a simulated lecture hall. They're right less often on harder questions.</li>
+          <li><b>Swap Question</b> trades the question for a new one of the same difficulty.</li>
+        </ul>
+      </li>
+      <li>Each game draws from a bank of <b id="bankSize"></b> questions, and you'll see new ones before any repeats.</li>
+    </ul>
+    <div><button class="btn primary" id="startBtn">Let's play!</button></div>
+    <p class="stats" id="stats"></p>
+  </section>
+
+  <!-- Game screen -->
+  <section class="game" id="game" hidden>
+    <div>
+      <div class="lifelines">
+        <button class="lifeline" id="ll5050"><span class="ico">50:50</span></button>
+        <button class="lifeline" id="llPoll"><span class="ico">📊</span> Ask the Class</button>
+        <button class="lifeline" id="llSwap"><span class="ico">🔄</span> Swap Question</button>
+      </div>
+      <div class="meta" id="meta" aria-live="polite"></div>
+      <div class="question" id="qText"></div>
+      <div class="answers" id="answers"></div>
+      <div class="controls">
+        <button class="btn primary" id="finalBtn" hidden>Final answer!</button>
+        <button class="btn" id="walkBtn">Walk away</button>
+        <button class="btn primary" id="nextBtn" hidden>Next question →</button>
+      </div>
+      <div class="panel" id="pollPanel" hidden>
+        <h3>📊 Simulated class vote</h3><p class="stats">This is a game hint, not a real class poll. It can be wrong.</p>
+        <div class="poll" id="poll"></div>
+      </div>
+      <div class="panel" id="explain" aria-live="polite" hidden></div>
+    </div>
+    <aside class="ladder"><ol id="ladder"></ol></aside>
+  </section>
+
+  <!-- End screen -->
+  <section class="splash" id="end" hidden>
+    <h2 id="endTitle"></h2>
+    <div class="big" id="endMoney"></div>
+    <p id="endMsg"></p>
+    <div class="panel" id="endExplain" hidden style="text-align:left"></div>
+    <p><button class="btn primary" id="againBtn">Play again</button></p>
+    <p class="stats" id="endStats"></p>
+  </section>
+</div>
+
+<script src="questions-exam2.js"></script>
+<script>
+const PRIZES = [100, 200, 300, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000, 1000000];
+const SAFE = new Set([4, 9]);                               // indexes of $1,000 and $32,000
+const LEVEL_DIFFICULTY = [1,1,1, 2,2,2, 3,3,3, 4,4,4, 5,5,5];
+const LETTERS = ["A", "B", "C", "D"];
+const SEEN_KEY = "bbmb-exam2-millionaire-seen-v1";
+const STATS_KEY = "bbmb-exam2-millionaire-stats-v1";
+
+const $ = id => document.getElementById(id);
+const fmt = n => "$" + n.toLocaleString("en-US");
+
+let state;
+
+/** Two-step confirm (dialogs are blocked in some embeds): first click arms, second click acts. */
+function confirmClick(btn, prompt, action) {
+  if (btn.dataset.armed) { clearTimeout(+btn.dataset.armed); delete btn.dataset.armed; btn.textContent = btn.dataset.label; action(); return; }
+  btn.dataset.label = btn.textContent;
+  btn.textContent = prompt;
+  btn.dataset.armed = setTimeout(() => { delete btn.dataset.armed; btn.textContent = btn.dataset.label; }, 3000);
+}
+
+function pickQuestion(difficulty, exclude) {
+  const seen = new Set(store.get(SEEN_KEY, []));
+  const pool = QUESTIONS.filter(q => q.difficulty === difficulty && !exclude.has(q.id));
+  let fresh = pool.filter(q => !seen.has(q.id));
+  if (fresh.length === 0) {
+    // Every question at this level has been seen: forget this level and start over.
+    const levelIds = new Set(QUESTIONS.filter(q => q.difficulty === difficulty).map(q => q.id));
+    store.set(SEEN_KEY, [...seen].filter(id => !levelIds.has(id)));
+    fresh = pool;
+  }
+  const q = fresh[Math.floor(Math.random() * fresh.length)];
+  store.set(SEEN_KEY, [...new Set([...store.get(SEEN_KEY, []), q.id])]);
+  return q;
+}
+
+function newGame() {
+  state = { level: 0, used: new Set(), lifelines: { fifty: true, poll: true, swap: true }, locked: false, picked: null };
+  $("start").hidden = true; $("end").hidden = true; $("game").hidden = false;
+  buildLadder();
+  loadQuestion();
+}
+
+function loadQuestion() {
+  const q = pickQuestion(LEVEL_DIFFICULTY[state.level], state.used);
+  state.used.add(q.id);
+  state.q = q;
+  Object.assign(state, shuffledChoices(q));
+  state.removed = new Set();
+  state.picked = null;
+  state.locked = false;
+  render();
+}
+
+function render() {
+  const walk = $("walkBtn");
+  if (walk.dataset.armed) { clearTimeout(+walk.dataset.armed); delete walk.dataset.armed; walk.textContent = walk.dataset.label; }
+  const { q, choices, level } = state;
+  $("meta").textContent = `Question ${level + 1} of 15 · for ${fmt(PRIZES[level])} · ${SUBJECTS[q.subject]}`;
+  $("qText").textContent = q.q;
+  const box = $("answers");
+  box.innerHTML = "";
+  choices.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.className = "answer";
+    b.innerHTML = `<span class="letter">${LETTERS[i]}:</span>`;
+    b.append(document.createTextNode(c));
+    if (state.removed.has(i)) b.classList.add("hidden");
+    b.onclick = () => choose(i);
+    box.append(b);
+  });
+  $("finalBtn").hidden = true;
+  $("nextBtn").hidden = true;
+  $("walkBtn").hidden = false;
+  $("explain").hidden = true;
+  $("pollPanel").hidden = true;
+  $("ll5050").disabled = !state.lifelines.fifty;
+  $("llPoll").disabled = !state.lifelines.poll;
+  $("llSwap").disabled = !state.lifelines.swap;
+  updateLadder();
+}
+
+function choose(i) {
+  if (state.locked || state.removed.has(i)) return;
+  state.picked = i;
+  [...$("answers").children].forEach((b, j) => b.classList.toggle("picked", j === i));
+  $("finalBtn").hidden = false;
+}
+
+function finalAnswer() {
+  if (state.picked === null || state.locked) return;
+  state.locked = true;
+  setLifelinesEnabled(false);
+  $("finalBtn").hidden = true;
+  $("walkBtn").hidden = true;
+  const buttons = [...$("answers").children];
+  buttons.forEach(b => b.disabled = true);
+  // A short pause for suspense, then the reveal.
+  setTimeout(() => {
+    const right = state.picked === state.answerIndex;
+    buttons[state.answerIndex].classList.remove("picked");
+    buttons[state.answerIndex].classList.add("correct");
+    if (!right) buttons[state.picked].classList.replace("picked", "wrong");
+    showExplanation(right);
+    if (!right) {
+      setTimeout(() => endGame("wrong"), 2200);
+    } else if (state.level === PRIZES.length - 1) {
+      setTimeout(() => endGame("won"), 2200);
+    } else {
+      $("nextBtn").hidden = false;
+    }
+  }, 1200);
+}
+
+function showExplanation(right) {
+  const el = $("explain");
+  el.hidden = false;
+  el.innerHTML = `<h3>${right ? "✅ Correct!" : "❌ Sorry, that's wrong."}</h3>`;
+  const p = document.createElement("div");
+  p.textContent = state.q.explain;
+  el.append(p);
+  const source = document.createElement("p");
+  source.className = "stats";
+  source.textContent = "Review: " + sourceLabel(state.q.source);
+  el.append(source);
+}
+
+function nextQuestion() {
+  if (!state.locked || state.picked !== state.answerIndex || state.level >= PRIZES.length - 1) return;
+  state.level++;
+  setLifelinesEnabled(true);
+  loadQuestion();
+}
+
+function setLifelinesEnabled(on) {
+  $("ll5050").disabled = !on || !state.lifelines.fifty;
+  $("llPoll").disabled = !on || !state.lifelines.poll;
+  $("llSwap").disabled = !on || !state.lifelines.swap;
+}
+
+// ── Lifelines ──
+function fiftyFifty() {
+  if (!state.lifelines.fifty || state.locked) return;
+  state.lifelines.fifty = false;
+  const wrong = shuffle([0, 1, 2, 3].filter(i => i !== state.answerIndex)).slice(0, 2);
+  wrong.forEach(i => state.removed.add(i));
+  const buttons = [...$("answers").children];
+  wrong.forEach(i => { buttons[i].classList.add("hidden"); buttons[i].classList.remove("picked"); });
+  if (wrong.includes(state.picked)) { state.picked = null; $("finalBtn").hidden = true; }
+  $("ll5050").disabled = true;
+}
+
+function askTheClass() {
+  if (!state.lifelines.poll || state.locked) return;
+  state.lifelines.poll = false;
+  $("llPoll").disabled = true;
+  const live = [0, 1, 2, 3].filter(i => !state.removed.has(i));
+  // The class is reliable on easy questions and shakier on hard ones.
+  const reliability = [0, 0.95, 0.88, 0.78, 0.68, 0.58][state.q.difficulty];
+  const favored = Math.random() < reliability
+    ? state.answerIndex
+    : live.filter(i => i !== state.answerIndex)[Math.floor(Math.random() * (live.length - 1))];
+  const weights = {};
+  live.forEach(i => weights[i] = Math.random() * 20 + 5);
+  weights[favored] += 35 + Math.random() * 30;
+  const total = Object.values(weights).reduce((a, b) => a + b, 0);
+  const pcts = {};
+  live.forEach(i => pcts[i] = Math.round(weights[i] / total * 100));
+  const drift = 100 - Object.values(pcts).reduce((a, b) => a + b, 0);
+  pcts[favored] += drift;
+
+  const poll = $("poll");
+  poll.innerHTML = "";
+  [0, 1, 2, 3].forEach(i => {
+    const v = pcts[i] || 0;
+    poll.insertAdjacentHTML("beforeend",
+      `<div class="bar"><div class="pct">${v}%</div><div class="fill" style="height:0"></div><div class="lbl">${LETTERS[i]}</div></div>`);
+  });
+  $("pollPanel").hidden = false;
+  requestAnimationFrame(() => {
+    [...poll.querySelectorAll(".fill")].forEach((f, i) => f.style.height = ((pcts[i] || 0) * 1.1) + "px");
+  });
+}
+
+function swapQuestion() {
+  if (!state.lifelines.swap || state.locked) return;
+  state.lifelines.swap = false;
+  loadQuestion();
+}
+
+// ── Ladder ──
+function buildLadder() {
+  const ol = $("ladder");
+  ol.innerHTML = "";
+  PRIZES.forEach((p, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="n">${i + 1}</span><span>${fmt(p)}</span>`;
+    if (SAFE.has(i) || i === PRIZES.length - 1) li.classList.add("safe");
+    ol.append(li);
+  });
+}
+function updateLadder() {
+  [...$("ladder").children].forEach((li, i) => {
+    li.classList.toggle("current", i === state.level);
+    li.classList.toggle("done", i < state.level);
+  });
+  const cur = $("ladder").children[state.level];
+  if (cur && window.matchMedia("(max-width: 800px)").matches) cur.scrollIntoView({ block: "nearest", inline: "center" });
+}
+
+// ── End of game ──
+function safeWinnings() {
+  let won = 0;
+  for (let i = 0; i < state.level; i++) if (SAFE.has(i)) won = PRIZES[i];
+  return won;
+}
+
+function endGame(reason) {
+  let money, title, msg;
+  if (reason === "won") {
+    money = PRIZES[PRIZES.length - 1]; title = "🏆 You're a Brewmaster!";
+    msg = "All 15 questions correct. Your professor would be proud.";
+  } else if (reason === "walk") {
+    money = state.level > 0 ? PRIZES[state.level - 1] : 0; title = "You walked away";
+    msg = `You stopped at question ${state.level + 1}. Smart brewers know when to stop the boil.`;
+  } else {
+    money = safeWinnings(); title = "Game over";
+    msg = `You missed question ${state.level + 1} (${fmt(PRIZES[state.level])}).` +
+      (money ? " Your safe haven kept your winnings." : " Reach $1,000 next time to lock in a safe haven.");
+  }
+  const stats = store.get(STATS_KEY, { games: 0, best: 0, millions: 0 });
+  stats.games++; stats.best = Math.max(stats.best, money);
+  if (reason === "won") stats.millions++;
+  store.set(STATS_KEY, stats);
+
+  $("game").hidden = true; $("end").hidden = false;
+  $("endTitle").textContent = title;
+  $("endMoney").textContent = fmt(money);
+  $("endMsg").textContent = msg;
+  const ex = $("endExplain");
+  if (reason === "walk") {
+    ex.hidden = false;
+    ex.innerHTML = `<h3>The answer you walked away from:</h3>`;
+    const d = document.createElement("div");
+    d.textContent = `${state.q.q} → ${state.q.correct}. ${state.q.explain} Review: ${sourceLabel(state.q.source)}`;
+    ex.append(d);
+  } else if (reason === "wrong") {
+    ex.hidden = false;
+    ex.innerHTML = `<h3>Review</h3>`;
+    const d = document.createElement("div");
+    d.textContent = `${state.q.q} → ${state.q.correct}. ${state.q.explain} Review: ${sourceLabel(state.q.source)}`;
+    ex.append(d);
+  } else ex.hidden = true;
+  showStats($("endStats"));
+}
+
+function showStats(el) {
+  const s = store.get(STATS_KEY, null);
+  el.textContent = s && s.games
+    ? `Games played: ${s.games} · Best: ${fmt(s.best)}${s.millions ? ` · Million-dollar wins: ${s.millions}` : ""}`
+    : "";
+}
+
+$("bankSize").textContent = QUESTIONS.length;
+showStats($("stats"));
+$("startBtn").onclick = newGame;
+$("againBtn").onclick = newGame;
+$("finalBtn").onclick = finalAnswer;
+$("nextBtn").onclick = nextQuestion;
+$("walkBtn").onclick = () => { if (!state.locked) confirmClick($("walkBtn"), `Tap again to keep ${fmt(state.level ? PRIZES[state.level - 1] : 0)}`, () => endGame("walk")); };
+$("ll5050").onclick = fiftyFifty;
+$("llPoll").onclick = askTheClass;
+$("llSwap").onclick = swapQuestion;
+</script>
+</body>
+</html>
+
