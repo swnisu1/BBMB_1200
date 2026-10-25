@@ -206,7 +206,7 @@ class DocumentBuilder:
         grid = ET.SubElement(table, w("tblGrid"))
         preferred_widths = {
             2: ("2600", "6200"),
-            3: ("2200", "5200", "1400"),
+            3: ("2200", "3200", "3400"),
             4: ("1800", "1800", "2400", "2800"),
         }
         grid_widths = preferred_widths.get(

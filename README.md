@@ -14,5 +14,6 @@
 - **`questions-exam2.js`**: 80 practice questions, with 16 at each difficulty (1–5), covering yeast and brewing microbes, sugar transport and fermentation, oxygen and flavor, sulfur chemistry, yeast engineering and domestication, and browning. Each explanation includes deck and slide references.
 - Sources: the six decks in `Lectures/Exam 2 material`, including the 2026 sulfur and GMO updates. Browning is included because it appears in slide 18 of the Exam 2 review. Older review statements about domestication are superseded by the updated lectures.
 - Exam 2 scores and seen-question history use separate localStorage keys. The class poll is simulated and may be wrong. Questions are study aids, not predictions of exam content.
+- **Study guide:** `brew-mud/docs/BBMB_1200_Second_Test_Study_Guide.docx`, the Exam 2 counterpart of the first-test guide, with summaries, 25 review questions, an answer key, and links to the Exam 2 game.
 - Open `index.html` in a browser, or serve the folder as static files. No install or build step is needed.
 

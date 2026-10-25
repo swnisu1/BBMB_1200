@@ -97,6 +97,7 @@ The quest format is deliberately declarative: new quest lines can be added witho
 
 - `docs/BrewMUD_Student_Information_Sheet.docx` introduces the game, commands, quests, quizzes, and regional maps.
 - `docs/BBMB_1200_First_Test_Study_Guide.docx` is a conventional study guide covering the same first-test content, with review questions and explanatory answers.
+- `docs/BBMB_1200_Second_Test_Study_Guide.docx` is the matching second-test guide (yeast, fermentation, flavor, sulfur, yeast engineering, and browning), with links to the Exam 2 review game. Rebuild it from `docs/SECOND_TEST_TRADITIONAL_STUDY_GUIDE.md` with `python3 tools/build_second_test_study_guide_docx.py`.
 - Editable Markdown sources for both documents are stored beside the Word files in `docs/`.
 
 ## Publishing
