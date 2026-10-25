@@ -1,10 +1,10 @@
 # BBMB 1200 Second-Test Study Guide
 
-## Yeast, fermentation, flavor, sulfur, yeast engineering, and browning
+## Yeast, fermentation, flavor, sulfur, domestication, and browning
 
-This conventional study guide covers the second-exam material: Lecture 7 (Yeast), Lecture 8 (Yeast maltose metabolism), Lecture 9 (More yeast metabolism), Lecture 10 (Yeast and sulfur), Lecture 12 (GMO yeast), and the browning slide from the Exam 2 review. Use the summaries to organize the major ideas, then answer the review questions without looking back. Check your reasoning with the answer key at the end.
+This conventional study guide covers the second-exam material: Lecture 7 (Yeast), Lecture 8 (Yeast maltose metabolism), Lecture 9 (More yeast metabolism), Lecture 10 (Yeast and sulfur), and the browning slide from the Exam 2 review. Use the summaries to organize the major ideas, then answer the review questions without looking back. Check your reasoning with the answer key at the end.
 
-The central goal is to explain relationships: how yeast take up and use wort sugars, how oxygen and growth conditions shape flavor compounds, where sulfur aromas come from, and what brewers gain or risk when they select or engineer yeast.
+The central goal is to explain relationships: how yeast take up and use wort sugars, how oxygen and growth conditions shape flavor compounds, where sulfur aromas come from, and what domestication has done to brewing yeast.
 
 ## Practice online
 
@@ -26,7 +26,7 @@ After studying, you should be able to:
 - Explain why yeast need oxygen early in fermentation.
 - Connect esters, higher alcohols, phenolics, chlorophenols, and diacetyl to their sources and flavors.
 - Distinguish H₂S, DMS, and bisulfite, and explain how brewers control DMS.
-- Evaluate examples of yeast domestication and genetic engineering, including their trade-offs.
+- Explain what yeast domestication studies show, and what they do not show.
 - Distinguish Maillard browning from caramelization.
 
 ## 1. Yeast and other brewing microbes
@@ -111,6 +111,8 @@ A wheat beer's banana and clove aromas come from two different pathways: banana 
 
 During maturation, active yeast **take up diacetyl and reduce it** to less flavor-active products. A **diacetyl rest** keeps active yeast in contact with the beer long enough to do this. If yeast settle early or are removed immediately after primary fermentation, the beer can stay buttery.
 
+A second approach prevents diacetyl instead of removing it. The enzyme **ALDC** (alpha-acetolactate decarboxylase) diverts the precursor alpha-acetolactate to acetoin before diacetyl can form.
+
 ## 4. Sulfur compounds
 
 | Compound | Effect | Key points |
@@ -132,38 +134,11 @@ DMS and H₂S are different molecules with different aromas and sources. A beer 
 
 Bisulfite acts as an antioxidant and reacts with carbonyl compounds. One of these is **trans-2-nonenal**, which is associated with wet-cardboard staling. Yeast **sulfite reductase** converts sulfite toward sulfide. Eliminating that enzyme lets more sulfite accumulate, which can improve flavor stability.
 
-## 5. Yeast domestication and engineering
-
-### Domestication
+## 5. Yeast domestication
 
 - Modern beer yeasts carry the marks of selection by brewers. One study traced a modern beer-yeast lineage to about 1600. That dates the lineage, not the first time humans selected yeast, which could have begun earlier.
 - **Farmhouse yeasts** retain stress tolerance that some industrial strains have lost. Domestication outcomes depend on which traits brewers selected.
 - Many modern beer yeasts make no clove aroma. The trait can be switched off by DNA changes **without deleting the genes**.
-
-### Flocculation
-
-**Flocculation** is yeast cells clumping together and settling. It clarifies beer and makes yeast easier to collect. Timing matters: if yeast flocculate too early, they can settle before fermentation is complete. A strain engineered for stronger flocculation should be tested for settling time, fermentation completion, and final flavor.
-
-### Genetic engineering
-
-Genetic engineering changes a cell's **DNA**, which changes the proteins it makes and what it does.
-
-- **Gene editing** is a targeted change to DNA. An edit can insert foreign DNA, but it does not have to.
-- **Transgenesis** introduces a gene from an unrelated species.
-
-| Engineered trait | What it does | Caution |
-|---|---|---|
-| Glucoamylase | Breaks dextrins into fermentable sugars, giving a drier beer | More ethanol also carries calories, so the beer is not automatically lower in calories |
-| ALDC (alpha-acetolactate decarboxylase) | Diverts alpha-acetolactate to acetoin before diacetyl forms | Prevents diacetyl rather than removing it afterward |
-| More glycerol | Redirects some sugar into glycerol | Lowers alcohol yield; flavor and fermentation performance still need checking |
-| Linalool and geraniol | Floral or citrus aroma made by the yeast | Adds aroma but does not replace hop bitterness, and stronger aroma is not proof of better taste |
-| Thiol release | Tropical aroma | Frees aroma compounds already bound in the ingredients, rather than making new ones |
-| Urea breakdown (wine yeast) | Less ethyl carbamate | Removes a precursor that reacts with ethanol |
-| Blocked sulfite reductase | More sulfite accumulates | Aims at better flavor stability |
-
-### Immobilized yeast and continuous fermentation
-
-Holding yeast in a material keeps a high density of active cells in contact with wort flowing past them, which can make continuous fermentation very fast. Speed is not enough to establish a working beer process. Flavor development, conditioning, contamination control, and reliable operation still matter.
 
 ## 6. Browning chemistry
 
@@ -202,8 +177,8 @@ Answer these without using the preceding notes. Questions 1–16 emphasize recal
 20. A pale-malt wort sits hot for a long time after a covered boil, and the beer smells of cooked corn. Explain what happened and how to fix the process.
 21. A beer smells of cooked corn but not rotten eggs. Can you blame the same sulfur compound for both aromas? Explain.
 22. A wheat beer smells of banana and clove. Name the compound class and pathway behind each aroma.
-23. An engineered strain with glucoamylase makes a drier beer. Will it necessarily be lower in calories? Explain.
-24. A newly engineered strain flocculates strongly and the beer clears quickly. What else must be measured before calling the strain an improvement?
+23. A yeast strain lacking sulfite reductase is proposed for better flavor stability. Explain the reasoning.
+24. A farmhouse yeast tolerates stress better than some industrial strains. What does this suggest about domestication?
 25. A study dates one modern beer-yeast lineage to about 1600. A classmate concludes that humans first used yeast in 1600. Respond.
 
 <!-- PAGE BREAK -->
@@ -232,12 +207,12 @@ Answer these without using the preceding notes. Questions 1–16 emphasize recal
 20. Pale malt can be high in SMM. The covered boil kept DMS from escaping, and the long hot stand kept converting SMM into DMS with nothing removing it. Use a vigorous uncovered boil and cool the wort rapidly.
 21. No. DMS (cooked corn) and H₂S (rotten eggs) are different molecules with different aromas and sources. DMS from heated SMM can be present without any H₂S.
 22. Banana comes from an ester, isoamyl acetate, made from isoamyl alcohol and acetyl-CoA. Clove comes from a phenolic, 4-vinyl guaiacol, made when yeast ferulate decarboxylase converts ferulic acid.
-23. Not necessarily. Glucoamylase turns dextrins into fermentable sugar, so less carbohydrate remains, but more of it becomes ethanol, which also has calories. Calories depend on the final composition.
-24. Measure when the yeast settle, whether fermentation still finishes, and the final flavor. Flocculating too early can leave sugar unfermented, so a clearer beer alone does not show an improvement.
+23. Sulfite reductase converts sulfite toward sulfide. Without it, more sulfite accumulates. Sulfite (as bisulfite) acts as an antioxidant and reacts with staling carbonyls such as trans-2-nonenal, so the beer can stay fresh longer.
+24. Domestication outcomes depend on which traits brewers selected. Different brewing environments and selection histories can preserve different traits, such as stress tolerance in farmhouse yeasts.
 25. The date describes when that one lineage arose. Selection of yeast could have begun much earlier, so the study cannot show when humans first used yeast.
 
 ## Final integration check
 
 You are ready when you can explain this chain in your own words:
 
-**Selected yeast (ale, lager, or specialty) → early oxygen for ergosterol and unsaturated fatty acids → glucose used first, then maltose by proton-coupled uptake and maltase → glycolysis yielding net ATP and NADH → ethanol and CO₂ regenerating NAD⁺ (favored at high sugar by the Crabtree effect) → flavor from esters, higher alcohols, and phenolics → diacetyl cleanup during maturation → sulfur control through boiling, cooling, and bisulfite → domestication and engineering that trade one trait against another.**
+**Selected yeast (ale, lager, or specialty) → early oxygen for ergosterol and unsaturated fatty acids → glucose used first, then maltose by proton-coupled uptake and maltase → glycolysis yielding net ATP and NADH → ethanol and CO₂ regenerating NAD⁺ (favored at high sugar by the Crabtree effect) → flavor from esters, higher alcohols, and phenolics → diacetyl cleanup during maturation → sulfur control through boiling, cooling, and bisulfite → domestication that shaped which traits brewing yeasts kept.**

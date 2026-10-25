@@ -17,7 +17,7 @@ def main() -> None:
         builder,
         OUTPUT,
         title="BBMB 1200 Second-Test Study Guide",
-        subject="Yeast, fermentation, flavor, sulfur, yeast engineering, and browning",
+        subject="Yeast, fermentation, flavor, sulfur, domestication, and browning",
         description=(
             "A conventional study guide covering the second-test lectures, "
             "with links to the Exam 2 review game."
